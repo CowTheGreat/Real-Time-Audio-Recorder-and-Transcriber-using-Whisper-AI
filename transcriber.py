@@ -46,12 +46,28 @@ class AudioTranscriber:
             
             if not transcription_text:  # Check if transcription is empty
                 return "Error: No speech detected in the audio file.\n"
+
+            # Save to history.txt
+            self.append_to_history(transcription_text)
                 
             return transcription_text
         except Exception as e:
             error_msg = f"Error during transcription: {str(e)}"
             logging.error(error_msg)
             return f"Error: {error_msg}\n"
+
+    def append_to_history(self, transcription):
+        """Appends the given transcription to history.txt"""
+        try:
+            history_file = "history.txt"
+
+            with open(history_file, "a", encoding="utf-8") as file:
+                file.write(transcription + "\n")
+
+            logging.info("Transcription appended to history.txt")
+
+        except Exception as e:
+            logging.error(f"Error appending transcription to history.txt: {e}")
 
     def save_transcription(self, text, save_directory=None):
         try:
