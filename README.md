@@ -71,6 +71,57 @@ Please ensure your contributions align with the project's goals and follow the c
 
 Thank you for contributing! 🎉
 
+## 🌟 New Features
+### Added Features:
+1. Enhanced transcription accuracy using Whisper AI's medium and large models.
+2. Integration of a progress bar to track recording duration.
+3. Support for multiple audio file formats, including `.mp3` and `.flac`.
+4. Dark mode for the user interface.
+### Upcoming Features:
+1. Language selection for transcription.
+2. Option to edit and save transcriptions directly within the application.
+3. Cloud storage integration for recordings and transcriptions.
+4. Real-time translation alongside transcription.
+
+## 📚 Examples and Tutorials
+### Example 1: Recording and Transcription
+1. Open the application by running `python ui.py`.
+2. Click "Start Recording" and speak into your microphone.
+3. Click "Stop Recording" to end the session.
+4. Click "Transcribe" to convert the audio into text. The transcription will be saved as `transcription.txt`.
+### Example 2: Customizing Whisper Model
+- Modify the model in `ui.py` by changing the line:
+```bash
+   model = whisper.load_model("base")
+```
+   Replace `base` with `tiny`, `small`, `medium`, or `large` based on your preference.
+
+## ❓ FAQ
+### **Q: What if I encounter a "PyAudio installation error"?**
+
+A: Ensure you have installed the appropriate build tools for your operating system. Refer to PyAudio installation guide.
+
+### **Q: Whisper model is not downloading or working?**
+
+A: Check your internet connection and ensure `whisper` is correctly installed. Run `pip install --upgrade whisper` if needed.
+
+### **Q: How can I add support for another language?**
+
+A: Modify the transcription function to include the `language` parameter. For example:
+```bash
+   result = model.transcribe("output.wav", language="es")
+```
+
+## 🛠️ Error-Handling Best Practices
+1. **Microphone Not Detected:**
+   - Verify your microphone is connected and working.
+   - Use `sounddevice` or `pyaudio` to list available devices and select the correct one.
+2. **File Save Errors:**
+   - Ensure the application has write permissions in the directory.
+3. **Transcription Errors:**
+   - Use a higher-quality microphone.
+   - Switch to a more robust Whisper model (e.g., `medium` or `large`).
+
 ## ⭐️ Acknowledgements
 
 A very big thanks to all the contributors for helping this project grow. Your efforts are greatly appreciated!
