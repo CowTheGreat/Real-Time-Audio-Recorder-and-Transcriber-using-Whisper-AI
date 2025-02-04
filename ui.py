@@ -12,7 +12,7 @@ warnings.filterwarnings(
 )
 
 import tkinter as tk
-from tkinter import filedialog, TclError
+from tkinter import filedialog, TclError, messagebox
 from recorder import AudioRecorder
 from transcriber import AudioTranscriber
 from emotion_analyzer import EmotionAnalyzer
@@ -27,7 +27,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import numpy as np
 import pyaudio
-
+import hashlib
 # Suppress FP16 warning
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU; using FP32 instead")
 
@@ -498,6 +498,63 @@ text_processor = TextProcessor()  # Will automatically load API key from .env if
 text_analyzer = TextAnalyzer()
 root = TkinterDnD.Tk()
 
+def open_annotation_window():
+    # Create a new top-level window for annotations
+    annotation_win = tk.Toplevel(root)
+    annotation_win.title("Annotate Transcription")
+    annotation_win.geometry("600x400")
+
+    # Create a frame for layout
+    frame = tk.Frame(annotation_win, padx=10, pady=10, bg="#2b2b2b")
+    frame.pack(fill=tk.BOTH, expand=True)
+
+    # Label for transcription display
+    transcription_label = tk.Label(frame, text="Transcription", bg="#2b2b2b", fg="white", font=("Helvetica", 12, "bold"))
+    transcription_label.pack(anchor="w")
+
+    # Read-only text widget to display the current transcription
+    transcription_display = tk.Text(frame, height=10, wrap=tk.WORD)
+    transcription_display.pack(fill=tk.BOTH, expand=True, pady=(0,10))
+    transcription_text = transcription_box.get("1.0", tk.END).strip()
+    transcription_display.insert(tk.END, transcription_text)
+    transcription_display.config(state=tk.DISABLED)
+
+    # Label for annotation input
+    annotation_label = tk.Label(frame, text="Enter your comments/annotations:", bg="#2b2b2b", fg="white", font=("Helvetica", 12, "bold"))
+    annotation_label.pack(anchor="w")
+
+    # Text widget for user annotations
+    annotation_text_widget = tk.Text(frame, height=5, wrap=tk.WORD)
+    annotation_text_widget.pack(fill=tk.BOTH, expand=True, pady=(0,10))
+
+    # Function to save annotated transcription
+    def save_annotation():
+        comments = annotation_text_widget.get("1.0", tk.END).strip()
+        if not transcription_text:
+            messagebox.showwarning("Warning", "No transcription available to annotate.")
+            return
+
+        # Generate a unique filename based on the transcription content
+        transcription_hash = hashlib.md5(transcription_text.encode()).hexdigest()[:8]  # Short hash for uniqueness
+        annotated_file = os.path.join(save_directory, f"annotated_transcription_{transcription_hash}.txt")
+
+        # Save both the transcription and the comments
+        try:
+            with open(annotated_file, "a", encoding="utf-8") as f:
+                if os.path.getsize(annotated_file) == 0:  # If it's a new file, add transcription
+                    f.write(f"Transcription:\n{transcription_text}\n\n")
+                f.write(f"User Comments:\n{comments}\n\n")  # Append new comments
+                
+            messagebox.showinfo("Success", f"Annotated transcription saved to {annotated_file}")
+            annotation_win.destroy()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to save annotation: {e}")
+
+
+    # Save Annotation button
+    save_button = tk.Button(frame, text="Save Annotation", command=save_annotation, bg="#4caf50", fg="white", font=("Helvetica", 12, "bold"), bd=3, relief=tk.RAISED)
+    save_button.pack(pady=5)
+
 root.title("Audio Recorder & Emotion Analyzer")
 root.geometry("1000x900")
 root.configure(bg="#2b2b2b")
@@ -617,6 +674,10 @@ summarize_button.pack(side=tk.LEFT, padx=5)
 
 query_button = tk.Button(button_container, text="Ask Question", command=query_text)
 query_button.pack(side=tk.LEFT, padx=5)
+
+# Annotate Transcription Button
+annotate_button = tk.Button(button_container, text="Annotate Transcription", command=open_annotation_window, bg="#4caf50", fg="white", font=("Helvetica", 9, "bold"), bd=3, relief=tk.RAISED)
+annotate_button.pack(pady=3)
 
 # Create a frame for transcription
 transcription_frame = tk.Frame(root, bg="#2b2b2b")
