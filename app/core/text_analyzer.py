@@ -1,7 +1,7 @@
 import spacy
 from collections import Counter, defaultdict
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict
 
 # Download required spaCy model
 try:
